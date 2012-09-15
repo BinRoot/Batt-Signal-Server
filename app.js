@@ -239,8 +239,29 @@ app.post('/pendingfriendrequests', function(request, response) {
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
-
-
+			// connect to DB, then return list of pending friends
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.query('friends', {'requires': POST_data.phoneNumber }, function(results) {
+						console.log('outside results is '+JSON.stringify(results));
+						var friendsNumbers = [];
+						for(var i = 0; i < results.length; i++) {
+							friendsNumbers.push(POST_data.phoneNumber === results[i].people[0] ? results[i].people[1] : results[i].people[0]);
+						}
+						console.log('friendsNumbers is '+friendsNumbers);
+						db.query('batt_users', {'phoneNumber': {'$in': friendsNumbers} }, function(results) {
+							console.log('inside results is '+JSON.stringify(results));
+							var returnArray = [];
+							for(var i = 0; i < results.length; i++) {
+								returnArray.push(results[i]);
+							}
+							response.send({actionRequired: returnArray});
+						});
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
 		});
 	}
 });
