@@ -7,6 +7,7 @@ var TwilioClient = require('twilio').Client,
       Twiml = require('twilio').Twiml,
       sys = require('sys');
 var TwilioRestClient = require('twilio').RestClient;
+var gcm = require('node-gcm');
 
 
 var app = express.createServer(express.logger());
@@ -295,6 +296,19 @@ app.post('/confirmfriend', function(request, response) {
 /*
 GOOGLE CLOUD MESSENGER
 */
+app.get('/gcmtest', function(request, response) {
+	var message = new gcm.Message();
+	var sender = new gcm.Sender('AIzaSyDnvHuy_N5S3ckXHFTCYqkHUoWc110CEm8');
+
+	message.addData('key1', 'test message for key1');
+	message.addData('key2', 'test message for key2');
+	var registrationIds = ['APA91bG7YsoZkNVnKwhmWrNEP0yYXp8jr6bIGgIAF8vfOqyAwsJvxY63qNkv3JgUGQ8v5WY4PwBnzVWU3X9qGtUFhcnr8SEf1Kik51yJIeFCXiUt67R3Dj9DiyvyPX8m2zr7pn4O4LlG'];
+
+	sender.send(message, registrationIds, 4, function (result) {
+	    console.log(result);
+	    response.send(result);
+	});
+});
 
 /*
 FRONT END VIEWS
