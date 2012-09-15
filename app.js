@@ -57,6 +57,32 @@ app.post('/register', function(request, response) {
 	}
 });
 
+// receives { phoneNumber: [string], verificationCode: [string] }
+// checks to see if it works out in the DB
+// sends back { result: [bool] }
+app.post('/verify', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+			// connect to DB, then see if verification code checks out
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.verifyNewUser([POST_data], function(statusObj) {
+						
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
+		});
+	}
+});
+
 
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
