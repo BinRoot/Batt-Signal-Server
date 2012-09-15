@@ -24,24 +24,32 @@ app.post('/register', function(request, response) {
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
-			response.send('got the following data: '+JSON.stringify(POST_data));
+			// validate POST data has all information
+			if(POST_data.name === undefined || POST_data.registrationID === undefined 
+				|| POST_data.phoneNumber === undefined || POST_data.password === undefined) {
+				response.send('{ "status": 400, "message": "A required field was not submitted.", "response": {} }');
+			} else {
+				db.connect(function(validConnection) {
+					if(validConnection) {
+						db.createNewUser([
+							{ name: POST_data.registration.name },
+							{ registrationID: POST_data.registration.registrationID },
+							{ phoneNumber: POST_data.registration.phoneNumber },
+							{ password: POST_data.registration.password }
+						], function(status) {
+							if(status === true) {
+								response.send('created new user!');
+							}
+						});
+					} else {
+						response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+					}
+				});
+			}
 		});
 	}
 });
 
-app.get('/mongotest', function(request, response) {
-	console.log(typeof db);
-	db.init(function(result) {
-		if(result) {
-			db.testFetch(function(res) {
-				response.send(res);
-			});
- 		} else {
- 			response.send('error!');
- 		}
-	});
-	
-});
 
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
