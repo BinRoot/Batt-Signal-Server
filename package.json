@@ -1,0 +1,11 @@
+{
+  "name": "batt-signal",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "2.5.x",
+    "ejs": "0.7.2"
+  },
+  "engines": {
+    "node": "0.6.x"
+  }
+}
