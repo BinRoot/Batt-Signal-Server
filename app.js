@@ -19,19 +19,50 @@ app.get('/', function(request, response) {
 	response.send('batt fuckin signal');
 });
 
-app.get('/getcode', function(request, response){
-		// build parameters into a string
-			var client = new TwilioClient('ACc0afd9286b84e56d6780acff1bb28852', '253dea99d52d3a88c21a33bbbf8e2806', 'http://aqueous-citadel-7149.herokuapp.com');
+// returns a code when given a number
+app.post('/getcode', function(request, response){
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+			var client = new TwilioClient('ACc0afd9286b84e56d6780acff1bb28852', '253dea99d52d3a88c21a33bbbf8e2806', 'aqueous-citadel-7149.herokuapp.com');
 			var phone = client.getPhoneNumber('+14438981316');
 			phone.setup(function() {
-				phone.sendSms('+17572145722', 'sup nigga', null, function(sms) {
-				            sms.on('processed', function(reqParams, response) {
-				                response.send('Message processed');
-				            });
-				            });
-				        });
+				// generate phoneNumber <-> verification code pair
+				var vCode = Math.floor(Math.random()*1000); // code can be between 1 and 3 digits
+				
+				// create new phoneNumber <-> verification record in DB
+				db.connect(function(validConnection) {
+					if(validConnection) {
+						db.createNewVerification({
+							phoneNumber: POST_data.phoneNumber,
+							verificationCode: vCode
+						}, function(status) {
+							// now send text with verification code
+							if(status.status === true) {
+								phone.sendSms(POST_data.phoneNumber, 'Your Batt Signal verification code is: '+vCode, null, function(sms) {
+									console.log('inside sendSms, sms is '+JSON.stringify(sms));
+									// don't bother with verification here... just send
+					                response.send('{status: 200}');
+						        });
+							} else {
+								response.send('error: '+status.msg);	
+							}
+						});
+					} else {
+						response.send('{ "status": 500, "message": "errorror connecting to the database.", "response": {} }');
+					}
+				});
+		    });
+		});
+	}
 });
 
+// handles registration, receives name, rID, phone number, password
 app.post('/register', function(request, response) {
 	// build parameters into a string
 	if(request.method === 'POST') {
@@ -66,7 +97,7 @@ app.post('/register', function(request, response) {
 							}
 						});
 					} else {
-						response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+						response.send('{ "status": 500, "message": "errorror connecting to the database.", "response": {} }');
 					}
 				});
 			}

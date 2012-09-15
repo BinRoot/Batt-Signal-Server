@@ -20,9 +20,27 @@ Database.prototype.connect = function(callback) {
 };
 
 // works with verfication doc. creates a new phoneNumber <==> verification connection
-// data has { phoneNumber: [string] }
+// data has { phoneNumber: [string], verificationCode: [string] }
 Database.prototype.createNewVerification = function(data, callback) {
-
+	db.collection('verification', function(err, collection) {
+		// check to see if number exists... send a new verification code if so
+		collection.count({phoneNumber: data.phoneNumber}, function(err, count) {
+			if(count !== 0) {
+				collection.update({phoneNumber: data.phoneNumber}, {$set: {verificationCode: data.verificationCode}});
+				callback({status: true});
+			} else {
+				collection.insert({
+					phoneNumber: data.phoneNumber,
+					verificationCode: data.verificationCode
+				}, {safe: true}, function(err, doc) {
+					if(err === null) 
+						callback({status: true});
+					else
+						callback({status: false, msg: 'Error with collection.insert', reason: 'other'});
+				});
+			}
+		});
+	});
 };
 
 // checks what the user entered as the verification code against the DB
