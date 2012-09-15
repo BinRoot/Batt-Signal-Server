@@ -25,20 +25,27 @@ app.post('/register', function(request, response) {
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
 			// validate POST data has all information
+			console.log('post data is '+JSON.stringify(POST_data));
 			if(POST_data.name === undefined || POST_data.registrationID === undefined 
 				|| POST_data.phoneNumber === undefined || POST_data.password === undefined) {
 				response.send('{ "status": 400, "message": "A required field was not submitted.", "response": {} }');
+			} else if(POST_data.phoneNumber.length !== 10) {
+				response.send('{ "status": 400, "message": "Phone number must be a 10-digit phone number.", "response": {} }');
 			} else {
+				// connect to DB, create proper data object, and insert into DB
 				db.connect(function(validConnection) {
 					if(validConnection) {
 						db.createNewUser([
-							{ name: POST_data.registration.name },
-							{ registrationID: POST_data.registration.registrationID },
-							{ phoneNumber: POST_data.registration.phoneNumber },
-							{ password: POST_data.registration.password }
-						], function(status) {
-							if(status === true) {
+							{ name: POST_data.name,
+							  registrationID: POST_data.registrationID,
+							  phoneNumber: POST_data.phoneNumber,
+							  password: POST_data.password }
+						], function(statusObj) {
+							if(statusObj.status === true) {
+								// inserted new user, everything went better than expected
 								response.send('created new user!');
+							} else {
+								response.send('error: '+statusObj.msg);
 							}
 						});
 					} else {
