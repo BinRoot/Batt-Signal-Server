@@ -19,6 +19,18 @@ Database.prototype.connect = function(callback) {
 	});
 };
 
+// works with verfication doc. creates a new phoneNumber <==> verification connection
+// data has { phoneNumber: [string] }
+Database.prototype.createNewVerification = function(data, callback) {
+
+};
+
+// checks what the user entered as the verification code against the DB
+// data has { phoneNumber: [string], verficationCode: [string] }
+Database.prototype.verifyNewUser = function(data, callback) {
+
+};
+
 // creates a user. expects data parameter to be properly formatted.
 Database.prototype.createNewUser = function(data, callback) {
 	db.collection('batt_users', function(err, collection) {
@@ -38,5 +50,7 @@ Database.prototype.createNewUser = function(data, callback) {
 		});
 	});
 };
+
+
 
 module.exports.Database = Database;
