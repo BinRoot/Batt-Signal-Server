@@ -3,6 +3,10 @@ var http = require('https');
 var httpnormal = require('http');
 var qs = require('querystring');
 var Database = require('./db').Database;
+var TwilioClient = require('twilio').Client,
+      Twiml = require('twilio').Twiml,
+      sys = require('sys');
+
 
 var app = express.createServer(express.logger());
 app.use(express.static(__dirname + '/public'));
@@ -13,6 +17,19 @@ var db = new Database();
 
 app.get('/', function(request, response) {
 	response.send('batt fuckin signal');
+});
+
+app.get('/getcode', function(request, response){
+		// build parameters into a string
+			var client = new TwilioClient('ACc0afd9286b84e56d6780acff1bb28852', '253dea99d52d3a88c21a33bbbf8e2806', 'http://aqueous-citadel-7149.herokuapp.com');
+			var phone = client.getPhoneNumber('+14438981316');
+			phone.setup(function() {
+				phone.sendSms('+17572145722', 'sup nigga', null, function(sms) {
+				            sms.on('processed', function(reqParams, response) {
+				                response.send('Message processed');
+				            });
+				            });
+				        });
 });
 
 app.post('/register', function(request, response) {
