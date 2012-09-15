@@ -6,6 +6,7 @@ var Database = require('./db').Database;
 var TwilioClient = require('twilio').Client,
       Twiml = require('twilio').Twiml,
       sys = require('sys');
+var TwilioRestClient = require('twilio').RestClient;
 
 
 var app = express.createServer(express.logger());
@@ -33,36 +34,15 @@ app.post('/getcode', function(request, response){
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
-			var client = new TwilioClient('ACc0afd9286b84e56d6780acff1bb28852', 
-				'253dea99d52d3a88c21a33bbbf8e2806', 'aqueous-citadel-7149.herokuapp.com');
-			var phone = client.getPhoneNumber('+14438981316');
-			phone.setup(function() {
-				// generate phoneNumber <-> verification code pair
-				var vCode = Math.floor(Math.random()*1000); // code can be between 1 and 3 digits
-				
-				// create new phoneNumber <-> verification record in DB
-				db.connect(function(validConnection) {
-					if(validConnection) {
-						db.createNewVerification({
-							phoneNumber: POST_data.phoneNumber,
-							verificationCode: vCode
-						}, function(status) {
-							// now send text with verification code
-							if(status.status === true) {
-								phone.sendSms(POST_data.phoneNumber, 'Your Batt Signal verification code is: '+vCode, null, function(sms) {
-									console.log('inside sendSms, sms is '+JSON.stringify(sms));
-									// don't bother with verification here... just send
-					                response.send('{status: 200}');
-						        });
-							} else {
-								response.send('error: '+status.msg);	
-							}
-						});
-					} else {
-						response.send('{ "status": 500, "message": "errorror connecting to the database.", "response": {} }');
-					}
-				});
-		    });
+
+			var twilio = new TwilioRestClient('ACc0afd9286b84e56d6780acff1bb28852', 
+				'253dea99d52d3a88c21a33bbbf8e2806');
+			// generate phoneNumber <-> verification code pair
+			var vCode = Math.floor(Math.random()*1000); // code can be between 1 and 3 digits
+			twilio.sendSms('14438981316', POST_data.phoneNumber, 'Your Batt Signal verification code is: '+vCode, '', function(body) {
+				console.log('success, body is '+JSON.stringify(body));
+				response.send({'status': 200});
+			});
 		});
 	}
 });
