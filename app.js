@@ -204,8 +204,25 @@ app.post('/addfriend', function(request, response) {
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
+			POST_data['friends'] = JSON.parse(POST_data['friends']);
+			// gotta convert each to a string
+			POST_data['friends'].forEach(function(value, index, arr) {
+				arr[index] = value.toString();
+			});
 
-
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.createFriendships(POST_data, function(result) {
+						if(result) {
+							response.send({'status': 200});
+						} else {
+							response.send({'status': 500, 'message': 'Error writing friends'});
+						}
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
 		});
 	}
 });

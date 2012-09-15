@@ -78,6 +78,25 @@ Database.prototype.createNewUser = function(data, callback) {
 	});
 };
 
+// adds new friendships
+// friendships are open
+Database.prototype.createFriendships = function(data, callback) {
+	db.collection('friends', function(err, collection) {
+		var numFinished = 0;
+		var goal = data.friends.length;
+		for(var i = 0; i < goal; i++) {
+			collection.update({'people': [data.originPhone, data.friends[i]], 'requires': data.friends[i]},
+			{'people': [data.originPhone, data.friends[i]], 'requires': data.friends[i]},
+			{'upsert': true}, function(err) {
+				numFinished++;
+				if(numFinished === goal) {
+					callback(true);
+				}
+			});
+		}
+	});
+};
+
 // generic filterable query
 Database.prototype.query = function(collectionName, fieldFilters, callback) {
 	db.collection(collectionName, function(err, collection) {
