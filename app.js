@@ -428,7 +428,7 @@ FRONT END VIEWS
 */
 
 app.get('/', function(request, response) {
-	response.send('batt fuckin signal');
+	response.render('home.ejs', {'layout': false});
 });
 
 app.get('/login', function(request, response) {
