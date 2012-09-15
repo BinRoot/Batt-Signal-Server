@@ -187,8 +187,27 @@ app.post('/getexistingusers', function(request, response) {
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
+			POST_data['phoneNumbers'] = JSON.parse(POST_data['phoneNumbers']);
+			// gotta convert each to a string
+			POST_data['phoneNumbers'].forEach(function(value, index, arr) {
+				arr[index] = value.toString();
+			});
+			console.log('postdata is '+JSON.stringify(POST_data));
 
-
+			// connect to DB, then return friends list
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.query('batt_users', {'phoneNumber': {'$in': POST_data['phoneNumbers']} }, function(results) {
+						var returnArray = [];
+						for(var i = 0; i < results.length; i++) {
+							returnArray.push(results[i].phoneNumber);
+						}
+						response.send({validNumbers: returnArray});
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
 		});
 	}
 });
