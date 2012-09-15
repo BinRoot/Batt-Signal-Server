@@ -3,7 +3,7 @@ var mongo = require('mongodb'),
 Server = mongo.Server,
 Db = mongo.Db,
 BSON = mongo.BSONPure;
-var assert = require('assert');
+var gcm = require('node-gcm');
 
 var server, db;
 
@@ -124,10 +124,29 @@ Database.prototype.resolveFriendship = function(data, callback) {
 	});
 };
 
+// returns a list of friends to the callback function
+// data has a phoneNumber
+Database.prototype.getFriends = function(data, callback) {
+	db.collection('friends', function(err, collection) {
+		collection.find({'people': data.phoneNumber, 'requires': 'none'}).toArray(function(err, results) {
+			var friends = [];
+			for(var i = 0; i < results.length; i++) {
+				friends.push(results[i].people[0] === data.phoneNumber ? results[i].people[1] : results[i].people[0]);
+			}
+			callback(friends);
+		});
+	});
+};
+
 // updates old stats
+// this should be called by the client
 Database.prototype.updateStats = function(data, callback) {
 	db.collection('batt_users', function(err, collection) {
-		collection.update({'phoneNumber': data.phoneNumber}, {'$set': { 'battery': data.newBattery, 'signal': data.newSignal } }, function(err) {
+		collection.update({'phoneNumber': data.phoneNumber}, {'$set': { 
+			'battery': data.newBattery, 
+			'signal': data.newSignal,
+			'lastModified': Date.now()
+		} }, function(err) {
 			if(err === undefined) {
 				callback(true);
 			} else {
@@ -136,6 +155,39 @@ Database.prototype.updateStats = function(data, callback) {
 			}
 		});
 	});	
+};
+
+// triggers refresh of old stats
+// only pings phones that haven't been updated in 30 min
+// data is a list of friend phoneNumbers
+Database.prototype.triggerRefresh = function(data, callback) {
+	db.collection('batt_users', function(err, collection) {
+		collection.find({'phoneNumber': {'$in': data} }).toArray(function(err, results) {
+			var registrationIds = []; // for GCM
+			console.log('inside triggerRefresh, results is '+JSON.stringify(results));
+			// for each phone number, check to see if it's been updated within the last 30 min then update
+			for(var i = 0; i < results.length; i++) {
+				if(results[i].lastModified === undefined || Date.now() - results[i].lastModified > 1800000) {
+					registrationIds.push(results[i].registrationID);
+				}
+			}
+
+			if(registrationIds.length > 0) {
+				// call GCM to trigger phone update
+				var message = new gcm.Message();
+				var sender = new gcm.Sender('AIzaSyDnvHuy_N5S3ckXHFTCYqkHUoWc110CEm8');
+
+				message.addData('serverMessage', 'performUpdate');
+
+				sender.send(message, registrationIds, 4, function (result) {
+				    console.log('result from GCM send is '+result);
+				    callback(true);
+				});
+			} else {
+				callback(true);
+			}
+		});
+	});
 };
 
 // generic filterable query

@@ -69,7 +69,9 @@ app.post('/register', function(request, response) {
 							{ name: POST_data.name,
 							  registrationID: POST_data.registrationID,
 							  phoneNumber: POST_data.phoneNumber,
-							  password: POST_data.password }
+							  password: POST_data.password,
+							  battery: 0,
+							  signal: 0 }
 						], function(statusObj) {
 							if(statusObj.status === true) {
 								// inserted new user, everything went better than expected
@@ -294,7 +296,7 @@ app.post('/confirmfriend', function(request, response) {
 });
 
 // receives { phoneNumber: [string], newBattery: [string], newSignal: [string] }
-// also checks to see if signal "low", if so, send SMS
+// updates records in DB given input. also checks to see if signal "low", if so, send SMS
 // returns { status: 200 }
 app.post('/update', function(request, response) {
 	// build parameters into a string
@@ -314,6 +316,76 @@ app.post('/update', function(request, response) {
 						} else {
 							response.send({'status': 500, 'message': 'Error manipulating the database'});
 						}
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
+
+			// TODO if battery is less than 10%, send SMS
+
+		});
+	}
+});
+
+// receives { phoneNumber: [string] }
+// puts out a GCM to all friends of phoneNumber
+app.post('/triggerrefresh', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+			// connect to DB, and update friends collection appropriately
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.getFriends(POST_data, function(results) {
+						console.log('friends are '+results);
+						db.triggerRefresh(results, function(result) {
+							if(result) {
+								response.send({'status': 200});
+							} else {
+								response.send({'status': 500, 'message': 'Error manipulating the database'});
+							}
+						});
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
+
+			// TODO if battery is less than 10%, send SMS
+
+		});
+	}
+});
+
+// receives { phoneNumbers: [array of strings. these are numbers to get info about] }
+// gets latest stats. doesn't care what you do with them.
+// returns { phoneStats: [array of {phoneNumber, name, battery, signal, etc... } ] }
+app.post('/getstats', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+			POST_data['phoneNumbers'] = JSON.parse(POST_data['phoneNumbers']);
+			// gotta convert each to a string
+			POST_data['phoneNumbers'].forEach(function(value, index, arr) {
+				arr[index] = value.toString();
+			});
+
+			// connect to DB and get appropriate data
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.query('batt_users', {'phoneNumber': {'$in': POST_data.phoneNumbers}}, function(results) {
+						response.send({'phoneStats': results});
 					});
 				} else {	
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
@@ -345,10 +417,6 @@ FRONT END VIEWS
 */
 
 app.get('/', function(request, response) {
-	response.send('batt fuckin signal');
-});
-
-app.get('/signup', function(request, response) {
 	response.send('batt fuckin signal');
 });
 
