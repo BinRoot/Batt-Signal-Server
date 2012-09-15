@@ -31,14 +31,16 @@ app.post('/register', function(request, response) {
 
 app.get('/mongotest', function(request, response) {
 	console.log(typeof db);
-	db.init();
-	db.testFetch(function(status) {
-		if(status) {
-			response.send('connected!');
-		} else {
-			response.send('did not connect');
-		}
+	db.init(function(result) {
+		if(result) {
+			db.testFetch(function(res) {
+				response.send(res);
+			});
+ 		} else {
+ 			response.send('error!');
+ 		}
 	});
+	
 });
 
 var port = process.env.PORT || 5000;
