@@ -8,6 +8,7 @@ var TwilioClient = require('twilio').Client,
       sys = require('sys');
 var TwilioRestClient = require('twilio').RestClient;
 var gcm = require('node-gcm');
+var crypto = require('crypto');
 
 
 var app = express.createServer(express.logger());
@@ -75,12 +76,14 @@ app.post('/register', function(request, response) {
 			} else {
 				// connect to DB, create proper data object, and insert into DB
 				db.connect(function(validConnection) {
+					// encrypt PW
+					var encryptedPass = crypto.createHash('md5').update(POST_data.password).digest('hex');
 					if(validConnection) {
 						db.createNewUser([
 							{ name: POST_data.name,
 							  registrationID: POST_data.registrationID,
 							  phoneNumber: POST_data.phoneNumber,
-							  password: POST_data.password,
+							  password: encryptedPass,
 							  battery: 0,
 							  signal: 0 }
 						], function(statusObj) {
