@@ -1,7 +1,7 @@
 var express = require('express');
 var http = require('https');
 var httpnormal = require('http');
-
+var qs = require('querystring');
 
 var app = express.createServer(express.logger());
 app.use(express.static(__dirname + '/public'));
@@ -9,7 +9,21 @@ app.use(express.cookieParser());
 app.use(express.session({ secret: "keyboard cat" }));
 
 app.get('/', function(request, response) {
-	response.send('test');
+	response.send('batt fuckin signal');
+});
+
+app.post('/register', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+			response.send('got the following data: '+JSON.stringify(POST_data));
+		});
+	}
 });
 
 var port = process.env.PORT || 5000;
