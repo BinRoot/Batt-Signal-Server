@@ -124,6 +124,20 @@ Database.prototype.resolveFriendship = function(data, callback) {
 	});
 };
 
+// updates old stats
+Database.prototype.updateStats = function(data, callback) {
+	db.collection('batt_users', function(err, collection) {
+		collection.update({'phoneNumber': data.phoneNumber}, {'$set': { 'battery': data.newBattery, 'signal': data.newSignal } }, function(err) {
+			if(err === undefined) {
+				callback(true);
+			} else {
+				console.log('error in updateStats: '+err);
+				callback(false);
+			}
+		});
+	});	
+};
+
 // generic filterable query
 Database.prototype.query = function(collectionName, fieldFilters, callback) {
 	db.collection(collectionName, function(err, collection) {

@@ -293,6 +293,36 @@ app.post('/confirmfriend', function(request, response) {
 	}
 });
 
+// receives { phoneNumber: [string], newBattery: [string], newSignal: [string] }
+// also checks to see if signal "low", if so, send SMS
+// returns { status: 200 }
+app.post('/update', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+			// connect to DB, and update friends collection appropriately
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.updateStats(POST_data, function(result) {
+						if(result) {
+							response.send({'status': 200});
+						} else {
+							response.send({'status': 500, 'message': 'Error manipulating the database'});
+						}
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
+		});
+	}
+});
+
 /*
 GOOGLE CLOUD MESSENGER
 */
