@@ -78,6 +78,15 @@ Database.prototype.createNewUser = function(data, callback) {
 	});
 };
 
+// generic filterable query
+Database.prototype.query = function(collectionName, fieldFilters, callback) {
+	db.collection(collectionName, function(err, collection) {
+		collection.find(fieldFilters).toArray(function(err, results) {
+			callback(results);
+		});
+	});
+};
+
 
 
 module.exports.Database = Database;

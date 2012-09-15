@@ -19,6 +19,10 @@ app.get('/', function(request, response) {
 	response.send('batt fuckin signal');
 });
 
+/*
+INTERNAL API ENDPOINTS
+*/
+
 // returns a code when given a number
 app.post('/getcode', function(request, response){
 	// build parameters into a string
@@ -29,7 +33,8 @@ app.post('/getcode', function(request, response){
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
-			var client = new TwilioClient('ACc0afd9286b84e56d6780acff1bb28852', '253dea99d52d3a88c21a33bbbf8e2806', 'aqueous-citadel-7149.herokuapp.com');
+			var client = new TwilioClient('ACc0afd9286b84e56d6780acff1bb28852', 
+				'253dea99d52d3a88c21a33bbbf8e2806', 'aqueous-citadel-7149.herokuapp.com');
 			var phone = client.getPhoneNumber('+14438981316');
 			phone.setup(function() {
 				// generate phoneNumber <-> verification code pair
@@ -107,7 +112,7 @@ app.post('/register', function(request, response) {
 
 // receives { phoneNumber: [string], verificationCode: [string] }
 // checks to see if it works out in the DB
-// sends back { result: [bool] }
+// returns { result: [bool] }
 app.post('/verify', function(request, response) {
 	// build parameters into a string
 	if(request.method === 'POST') {
@@ -127,6 +132,117 @@ app.post('/verify', function(request, response) {
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
 				}
 			});
+		});
+	}
+});
+
+// receives { phoneNumber: [string] }
+// query db.friends.find({ people: phoneNumber, requires: 'none' })
+// returns { friends: [array of {name, phoneNumber}] }
+app.post('/getfriends', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+			// connect to DB, then return friends list
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.query('friends', {'people': POST_data.phoneNumber, 'requires': 'none'}, function(results) {
+						var friendsToGet = [];
+						// do some finangling with query result to get relevant phone number
+						// for next query
+						for(var i = 0; i < results.length; i++) {
+							friendsToGet.push( results[i].people[0] === POST_data.phoneNumber ? results[i].people[1] : results[i].people[0] );
+						}
+						// new query to batt_users to actually return relevant results
+						db.query('batt_users', {'phoneNumber': {'$in': friendsToGet } }, function(peopleResults) {
+							var returnMe = [];
+							for(var i = 0; i < peopleResults.length; i++) {
+								returnMe.push({'name': peopleResults[i].name, 'phoneNumber': peopleResults[i].phoneNumber});
+							}
+							response.send(returnMe);
+						});
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
+		});
+	}
+});
+
+// receives { phoneNumbers: [array] }
+// figures out which of these numbers are already users in the DB
+// returns { validNumbers: [array] }. can be 0 length. 
+app.post('/getexistingusers', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+
+
+		});
+	}
+});
+
+// receives { originPhone: [string], friends: [array] }
+// creates new entries in DB for each friend pair
+// returns { status: 200 }
+app.post('/addfriend', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+
+
+		});
+	}
+});
+
+// receives { phoneNumber: [string] } 
+// check to see if any friends entries requires actions from this phone number
+// returns { actionRequired: [array of {id, phoneNumber, name}] }
+app.post('/pendingfriendrequests', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+
+
+		});
+	}
+});
+
+// receives { friendshipId: [ObjectId], confirm: [bool] }
+// if true, set requires field to none. else remove friendship
+// returns { status: 200 }
+app.post('/confirmfriend', function(request, response) {
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+
+
 		});
 	}
 });
