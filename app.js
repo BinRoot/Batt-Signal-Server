@@ -266,7 +266,7 @@ app.post('/pendingfriendrequests', function(request, response) {
 	}
 });
 
-// receives { friendshipId: [ObjectId], confirm: [bool] }
+// receives { _id: [ObjectId as string], confirm: [bool] }
 // if true, set requires field to none. else remove friendship
 // returns { status: 200 }
 app.post('/confirmfriend', function(request, response) {
@@ -278,8 +278,20 @@ app.post('/confirmfriend', function(request, response) {
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
-
-
+			// connect to DB, and update friends collection appropriately
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.resolveFriendship(POST_data, function(result) {
+						if(result) {
+							response.send({'status': 200});
+						} else {
+							response.send({'status': 500, 'message': 'Error manipulating the database'});
+						}
+					});
+				} else {	
+					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
+				}
+			});
 		});
 	}
 });

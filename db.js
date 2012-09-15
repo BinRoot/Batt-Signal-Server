@@ -1,7 +1,8 @@
 // mongo n shit
 var mongo = require('mongodb'),
 Server = mongo.Server,
-Db = mongo.Db;
+Db = mongo.Db,
+BSON = mongo.BSONPure;
 var assert = require('assert');
 
 var server, db;
@@ -91,6 +92,32 @@ Database.prototype.createFriendships = function(data, callback) {
 				numFinished++;
 				if(numFinished === goal) {
 					callback(true);
+				}
+			});
+		}
+	});
+};
+
+// resolves a friendship
+// either confirm or deny
+Database.prototype.resolveFriendship = function(data, callback) {
+	db.collection('friends', function(err, collection) {
+		if(data.confirm == 'true') {
+			collection.update({'_id': BSON.ObjectID(data._id)}, {'$set': { 'requires': 'none' } }, function(err) {
+				if(err === undefined) {
+					callback(true);
+				} else {
+					console.log('error in resolveFriendship: '+err);
+					callback(false);
+				}
+			});
+		} else {
+			collection.remove({'_id': BSON.ObjectID(data._id)}, function(err) {
+				if(err === undefined) {
+					callback(true);
+				} else {
+					console.log('error in resolveFriendship: '+err);
+					callback(false);
 				}
 			});
 		}
