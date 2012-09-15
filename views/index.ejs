@@ -11,6 +11,7 @@
 	<script type="text/javascript" src="../js/bootstrap.js"></script>
 	<link rel="stylesheet" href="../css/bootstrap.css" />	
 	<link rel="stylesheet" href="../css/style.css" />
+	<link href='http://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 	<script type="text/javascript">
 	$(document).ready(function() {
 		
@@ -22,8 +23,18 @@
 	<![endif]-->
 </head>
 <body>
+	<header>
+		<h1>Batt Signal</h1>
+		<h2>See the battery life and signal strenth on your friends' phones</h2>
+	</header>
 	<div id="main">
-		
+		<p>Already a user? Log in below.</p>
+		<form id="login_form" method="post" action="/home">
+			<input class="login_text" type="text" name="phoneNumber" placeholder="Your Phone Number" class="span2" /><br />
+			<label for="phoneNumber" id="phone_number_label">format: 5551234657</label>
+			<input class="login_text" type="password" name="password" placeholder="Password" /><br /><br />
+			<button type="submit" class="btn">Login</button>
+		</form>
 	</div>
 
 	<footer style="position:absolute; bottom:10px; text-align:center; width:100%;">

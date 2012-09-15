@@ -89,9 +89,9 @@ app.post('/register', function(request, response) {
 						], function(statusObj) {
 							if(statusObj.status === true) {
 								// inserted new user, everything went better than expected
-								response.send('created new user!');
+								response.send({'status': 200});
 							} else {
-								response.send('error: '+statusObj.msg);
+								response.send({'status': 500, 'message': statusObj.msg});
 							}
 						});
 					} else {
@@ -431,11 +431,15 @@ FRONT END VIEWS
 */
 
 app.get('/', function(request, response) {
-	response.render('home.ejs', {'layout': false});
+	response.render('index.ejs', {'layout': false});
 });
 
 app.get('/login', function(request, response) {
 	response.send('batt fuckin signal');
+});
+
+app.post('/home', function(request, response) {
+	
 });
 
 app.get('/home', function(request, response) {
