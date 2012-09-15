@@ -16,10 +16,6 @@ app.use(express.session({ secret: "keyboard cat" }));
 
 var db = new Database();
 
-app.get('/', function(request, response) {
-	response.send('batt fuckin signal');
-});
-
 /*
 INTERNAL API ENDPOINTS
 */
@@ -294,6 +290,30 @@ app.post('/confirmfriend', function(request, response) {
 			});
 		});
 	}
+});
+
+/*
+GOOGLE CLOUD MESSENGER
+*/
+
+/*
+FRONT END VIEWS
+*/
+
+app.get('/', function(request, response) {
+	response.send('batt fuckin signal');
+});
+
+app.get('/signup', function(request, response) {
+	response.send('batt fuckin signal');
+});
+
+app.get('/login', function(request, response) {
+	response.send('batt fuckin signal');
+});
+
+app.get('/home', function(request, response) {
+	response.send('batt fuckin signal');
 });
 
 
