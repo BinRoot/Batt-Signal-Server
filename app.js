@@ -170,7 +170,7 @@ app.post('/getfriends', function(request, response) {
 
 // receives { phoneNumbers: [array] }
 // figures out which of these numbers are already users in the DB
-// returns { validNumbers: [array] }. can be 0 length. 
+// returns { validPeople: [array of {phoneNumber, name}] }. can be 0 length. 
 app.post('/getexistingusers', function(request, response) {
 	// build parameters into a string
 	if(request.method === 'POST') {
@@ -193,9 +193,9 @@ app.post('/getexistingusers', function(request, response) {
 					db.query('batt_users', {'phoneNumber': {'$in': POST_data['phoneNumbers']} }, function(results) {
 						var returnArray = [];
 						for(var i = 0; i < results.length; i++) {
-							returnArray.push(results[i].phoneNumber);
+							returnArray.push({'phoneNumber': results[i].phoneNumber, 'name': results[i].name});
 						}
-						response.send({validNumbers: returnArray});
+						response.send({validPeople: returnArray});
 					});
 				} else {	
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
@@ -439,7 +439,18 @@ app.get('/login', function(request, response) {
 });
 
 app.post('/home', function(request, response) {
-	
+	// build parameters into a string
+	if(request.method === 'POST') {
+		var body = '';
+		request.on('data', function(data) {
+			body += data;
+		});
+		request.on('end', function() {
+			var POST_data = qs.parse(body);
+
+			response.send('postdata is '+JSON.stringify(POST_data));
+		});
+	}
 });
 
 app.get('/home', function(request, response) {
