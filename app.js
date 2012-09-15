@@ -36,9 +36,20 @@ app.post('/getcode', function(request, response){
 				'253dea99d52d3a88c21a33bbbf8e2806');
 			// generate phoneNumber <-> verification code pair
 			var vCode = Math.floor(Math.random()*1000); // code can be between 1 and 3 digits
-			twilio.sendSms('14438981316', POST_data.phoneNumber, 'Your Batt Signal verification code is: '+vCode, '', function(body) {
-				console.log('success, body is '+JSON.stringify(body));
-				response.send({'status': 200});
+
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.createNewVerification({'phoneNumber': POST_data.phoneNumber, 'verificationCode': vCode}, function(statusObj) {
+						if(statusObj.status === true) {
+							twilio.sendSms('14438981316', POST_data.phoneNumber, 'Your Batt Signal verification code is: '+vCode, '', function(body) {
+								console.log('success, body is '+JSON.stringify(body));
+								response.send({'status': 200});
+							});
+						} else {
+							response.send({'status': 500});
+						}
+					});
+				}
 			});
 		});
 	}
