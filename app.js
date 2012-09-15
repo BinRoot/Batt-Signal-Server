@@ -120,8 +120,8 @@ app.post('/verify', function(request, response) {
 			// connect to DB, then see if verification code checks out
 			db.connect(function(validConnection) {
 				if(validConnection) {
-					db.verifyNewUser([POST_data], function(statusObj) {
-						
+					db.verifyNewUser(POST_data, function(statusObj) {
+						response.send(JSON.stringify(statusObj));
 					});
 				} else {	
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');

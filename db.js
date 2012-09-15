@@ -46,7 +46,16 @@ Database.prototype.createNewVerification = function(data, callback) {
 // checks what the user entered as the verification code against the DB
 // data has { phoneNumber: [string], verficationCode: [string] }
 Database.prototype.verifyNewUser = function(data, callback) {
-
+	db.collection('verification', function(err, collection) {
+		collection.findOne({phoneNumber: data.phoneNumber}, function(err, doc) {
+			// NOTE: verificationCode is saved on DB as Number, not String
+			if(doc.verificationCode === parseInt(data.verificationCode)) {
+				callback({ result: true });
+			} else {
+				callback({ result: false });
+			}
+		});
+	});
 };
 
 // creates a user. expects data parameter to be properly formatted.
