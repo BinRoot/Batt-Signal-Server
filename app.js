@@ -300,7 +300,7 @@ app.post('/pendingfriendrequests', function(request, response) {
 						for(var i = 0; i < results.length; i++) {
 							var friendsNumber = POST_data.phoneNumber === results[i].people[0] ? results[i].people[1] : results[i].people[0];
 							var friendshipId = results[i]._id;
-							returnArray.push({'phoneNumber': friendsNumber, 'id': friendshipId});
+							returnArray.push({'phoneNumber': friendsNumber, '_id': friendshipId});
 						}
 						var goal = returnArray.length;
 						var soFar = 0;
