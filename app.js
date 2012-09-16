@@ -292,19 +292,38 @@ app.post('/pendingfriendrequests', function(request, response) {
 				if(validConnection) {
 					db.query('friends', {'requires': POST_data.phoneNumber }, function(results) {
 						console.log('outside results is '+JSON.stringify(results));
-						var friendsNumbers = [];
-						for(var i = 0; i < results.length; i++) {
-							friendsNumbers.push(POST_data.phoneNumber === results[i].people[0] ? results[i].people[1] : results[i].people[0]);
+						if(results.length === 0) {
+							response.send({actionRequired: []});
+							return;
 						}
-						console.log('friendsNumbers is '+friendsNumbers);
-						db.query('batt_users', {'phoneNumber': {'$in': friendsNumbers} }, function(results) {
-							console.log('inside results is '+JSON.stringify(results));
-							var returnArray = [];
-							for(var i = 0; i < results.length; i++) {
-								returnArray.push(results[i]);
-							}
-							response.send({actionRequired: returnArray});
-						});
+						var returnArray = [];
+						for(var i = 0; i < results.length; i++) {
+							var friendsNumber = POST_data.phoneNumber === results[i].people[0] ? results[i].people[1] : results[i].people[0];
+							var friendshipId = results[i]._id;
+							returnArray.push({'phoneNumber': friendsNumber, 'id': friendshipId});
+						}
+						var goal = returnArray.length;
+						var soFar = 0;
+						for(var i = 0; i < returnArray.length; i++) {
+							db.query('batt_users', {'phoneNumber': returnArray[i].phoneNumber}, function(returnObj, index) { return function(results) {
+								console.log('returnObj is '+JSON.stringify(returnObj)+', results is '+JSON.stringify(results));
+								returnObj[index].name = results[0].name;
+								soFar++;
+								if(soFar === goal) {
+									console.log('goal reached, return object is '+JSON.stringify(returnObj));
+									response.send({actionRequired: returnObj});
+								}
+							} }(returnArray, i));
+						}
+						// console.log('friendsNumbers is '+friendsNumbers);
+						// db.query('batt_users', {'phoneNumber': {'$in': friendsNumbers} }, function(results) {
+						// 	console.log('inside results is '+JSON.stringify(results));
+						// 	var returnArray = [];
+						// 	for(var i = 0; i < results.length; i++) {
+						// 		returnArray.push(results[i]);
+						// 	}
+						// 	response.send({actionRequired: returnArray});
+						// });
 					});
 				} else {	
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
