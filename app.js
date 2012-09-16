@@ -361,7 +361,34 @@ app.post('/update', function(request, response) {
 				if(validConnection) {
 					db.updateStats(POST_data, function(result) {
 						if(result) {
-							response.send({'status': 200});
+							// get friends of this user and send warning texts to them all
+							if(parseInt(POST_data.newBattery) <= 10) {
+								db.getFriends({'phoneNumber': POST_data.phoneNumber}, function(friendsNumbers) {
+									db.query('batt_users', {'phoneNumber': {'$in': friendsNumbers}}, function(results) {
+										console.log('results is '+JSON.stringify(results));
+										if(results.length > 0) {
+											// we also gotta get this person's name...
+											db.query('batt_users', {'phoneNumber': POST_data.phoneNumber}, function(currUser) {
+												var twilio = new TwilioRestClient('ACc0afd9286b84e56d6780acff1bb28852', 
+													'253dea99d52d3a88c21a33bbbf8e2806');
+												var goal = results.length;
+												var soFar = 0;
+												for(var i = 0; i < results.length; i++) {
+													twilio.sendSms('14438981316', results[i].phoneNumber, 'Batt Signal alert: '+currUser[0].name+'\'s phone\'s battery life has dipped below 10%', '', function(body) {
+														console.log('success, body is '+JSON.stringify(body));
+														soFar++;
+														if(soFar === goal) {
+															response.send({'status': 200});
+														}
+													});
+												} // end loop
+											}); // end query for current user's name
+										} // end length check 
+									});
+								});
+							} else {
+								response.send({'status': 200});
+							}
 						} else {
 							response.send({'status': 500, 'message': 'Error manipulating the database'});
 						}
@@ -370,9 +397,6 @@ app.post('/update', function(request, response) {
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
 				}
 			});
-
-			// TODO if battery is less than 10%, send SMS
-
 		});
 	}
 });
@@ -528,6 +552,9 @@ app.get('/logout', function(request, response) {
 	response.render('logout.ejs');
 });
 
+app.get('/cssanimtest', function(request, response) {
+	response.render('test.ejs');
+});
 
 function doHome(request, response, friendsList) {
 	console.log('friendslist is '+JSON.stringify(friendsList));

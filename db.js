@@ -135,7 +135,7 @@ Database.prototype.getFriends = function(data, callback) {
 		collection.find(criteria).toArray(function(err, results) {
 			var friends = [];
 			for(var i = 0; i < results.length; i++) {
-				if(data.wantExtras === true)
+				if(data.wantExtras === true || data.superHackyWayToGetExtras === true)
 					friends.push(results[i]);
 				else
 					friends.push(results[i].people[0] === data.phoneNumber ? results[i].people[1] : results[i].people[0]);
