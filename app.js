@@ -448,9 +448,6 @@ app.post('/triggerrefresh', function(request, response) {
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
 				}
 			});
-
-			// TODO if battery is less than 10%, send SMS
-
 		});
 	}
 });
@@ -579,7 +576,8 @@ function doHome(request, response, friendsList) {
 	console.log('friendslist is '+JSON.stringify(friendsList));
 	response.render('home.ejs', {
 		locals: {
-			friends: friendsList
+			friends: friendsList,
+			userNumber: request.cookies.phonenumber
 		}
 	});
 }

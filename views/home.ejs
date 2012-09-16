@@ -1,3 +1,7 @@
+<div class="alert alert-info" style="margin-top:40px;display:none;" id="refresh-info">
+We've pinged all your friends' phones to give you an update of their battery lives. Please wait for this information to be gathered and <a href="/home">reload</a> the page soon.
+</div>
+
 <div id="friends_list">
 	<% for(var i = 0; i < friends.length; i++) { %> 
 	<div class="friend_button" data-number="<%- friends[i]['phoneNumber'] %>"><%- friends[i].name %></div>
@@ -55,6 +59,16 @@ $(document).ready(function() {
 					$('#battery_type_'+number).addClass('battery_hundred');
 				}
 				slideMeDown.slideDown(600);
+			}
+		});
+	});
+	$('#refresh').click(function() {
+		$.ajax({
+			type: 'POST',
+			url: '/triggerrefresh',
+			data: 'phoneNumber=<%- userNumber %>',
+			success: function(data) {
+				$('#refresh-info').show();
 			}
 		});
 	});
