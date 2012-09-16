@@ -1,8 +1,24 @@
-<div id="people_list">
-	<ul>
+<div>
+	<ul id="friends_list">
 		<%
 		for(var i = 0; i < friends.length; i++) { %>
-			<li><%- friends[i].name %></li>
+			<li class="friend_button" data-number="<%- friends[i]['phoneNumber'] %>"><%- friends[i].name %></li>
 		<% } %>
 	</ul>
 </div>
+
+<script>
+$(document).ready(function() {
+	$('.friend_button').click(function() {
+		var number = $(this).attr('data-number');
+		$.ajax({
+			type: 'POST', 
+			url: '/getstats',
+			data: 'phoneNumbers=['+number+']',
+			success: function(data) {
+				console.log('data is ', data);
+			}
+		});
+	});
+});
+</script>

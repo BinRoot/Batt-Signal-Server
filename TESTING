@@ -1,5 +1,8 @@
 TESTING
 
+0. GETEXISTINGUSERS
+http -f POST http://localhost:5000/getexistingusers phoneNumbers='[7572145722, 111, 222]' currUserNumber=7572145722
+
 1. GETCODE
 http -f POST http://localhost:5000/getcode phoneNumber=7572145722
 
@@ -29,3 +32,5 @@ http -f POST http://localhost:5000/confirmfriend confirm=true _id=
 
 7. DENY FRIENDSHIP
 http -f POST http://localhost:5000/confirmfriend confirm=false _id=
+
+8. UPDATE STATS
