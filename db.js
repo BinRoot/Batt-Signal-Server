@@ -87,15 +87,21 @@ Database.prototype.createFriendships = function(data, callback) {
 		var numFinished = 0;
 		var goal = data.friends.length;
 		for(var i = 0; i < goal; i++) {
-			// TODO you can currently create a new friendship if it already exists
-			collection.update({'people': [data.originPhone, data.friends[i]], 'requires': data.friends[i]},
-			{'people': [data.originPhone, data.friends[i]], 'requires': data.friends[i]},
-			{'upsert': true}, function(err) {
-				numFinished++;
-				if(numFinished === goal) {
-					callback(true);
+			collection.findOne({'people': [data.originPhone, data.friends[i]]}, function(index) { return function(err, doc) {
+				if(doc === null) {
+					collection.insert({'people': [data.originPhone, data.friends[index]], 'requires': data.friends[index]}, function(err, doc) {
+						numFinished++;
+						if(numFinished === goal) {
+							callback(true);
+						}
+					});
+				} else {
+					numFinished++;
+					if(numFinished === goal) {
+						callback(true);
+					}
 				}
-			});
+			} }(i));
 		}
 	});
 };
