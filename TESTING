@@ -13,10 +13,10 @@ http -f POST http://localhost:5000/verify phoneNumber=7572145722 verificationCod
 http -f POST http://localhost:5000/register phoneNumber=7572145722 name='David Hu' registrationID=1234 password=password
 
 4. CREATE USERS
-db['batt_users'].save( {name: 'oneoneone', registrationID: 'xxx', phoneNumber: '111', password: '111'} ) 
-db['batt_users'].save( {name: 'twotwotwo', registrationID: 'xxx', phoneNumber: '222', password: '222'} ) 
-db['batt_users'].save( {name: 'threethreethree', registrationID: 'xxx', phoneNumber: '333', password: '333'} ) 
-db['batt_users'].save( {name: 'fourfourfour', registrationID: 'xxx', phoneNumber: '444', password: '444'} )
+db['batt_users'].save( {name: 'oneoneone', registrationID: 'xxx', phoneNumber: '111', password: '111', battery: '11', signal: 'low', lastModified: '1347765402126'} )
+db['batt_users'].save( {name: 'twotwotwo', registrationID: 'xxx', phoneNumber: '222', password: '222', battery: '22', signal: 'medium', lastModified: '1347765402126'} ) 
+db['batt_users'].save( {name: 'threethreethree', registrationID: 'xxx', phoneNumber: '333', password: '333', battery: '33', signal: 'great', lastModified: '1347765402126'} ) 
+db['batt_users'].save( {name: 'fourfourfour', registrationID: 'xxx', phoneNumber: '444', password: '444', battery: '44', signal: 'excellent', lastModified: '1347765402126'} )
 
 5. FORGE FRIENDSHIPS
 http -f POST http://localhost:5000/addfriend originPhone=7572145722 friends='[222, 444]'

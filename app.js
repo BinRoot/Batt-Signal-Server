@@ -528,6 +528,7 @@ app.get('/logout', function(request, response) {
 	response.render('logout.ejs');
 });
 
+
 function doHome(request, response, friendsList) {
 	console.log('friendslist is '+JSON.stringify(friendsList));
 	response.render('home.ejs', {
