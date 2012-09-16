@@ -84,8 +84,9 @@ app.post('/register', function(request, response) {
 							  registrationID: POST_data.registrationID,
 							  phoneNumber: POST_data.phoneNumber,
 							  password: encryptedPass,
-							  battery: 0,
-							  signal: 0 }
+							  battery: '0',
+							  signal: '0',
+							  lastModified: '0' }
 						], function(statusObj) {
 							if(statusObj.status === true) {
 								// inserted new user, everything went better than expected
@@ -198,22 +199,31 @@ app.post('/getexistingusers', function(request, response) {
 
 						// go through returnArray and check to see if each one is already a friend
 						if(POST_data.currUserNumber !== undefined) {
-							db.getFriends({'phoneNumber': POST_data.currUserNumber}, function(friends) {
+					
+
+							db.getFriends({'phoneNumber': POST_data.currUserNumber, 'wantExtras': true}, function(friends) {
 								console.log('friends is '+JSON.stringify(friends));
 								for(var j = 0; j < returnArray.length; j++) {
 									if(friends.length > 0) {
 										for(var i = 0; i < friends.length; i++) {
-											console.log('comparing '+friends[i]+' and '+returnArray[j].phoneNumber);
-											if(returnArray[j].isFriend)
-												continue;
-											if(friends[i] === returnArray[j].phoneNumber) {
-												returnArray[j].isFriend = true;
+											console.log('comparing '+JSON.stringify(friends[i].people)+' and '+returnArray[j].phoneNumber);
+											if((friends[i].people[0] === returnArray[j].phoneNumber
+												&& friends[i].people[0] !== POST_data.currUserNumber) ||
+												(friends[i].people[1] === returnArray[j].phoneNumber
+												&& friends[i].people[1] !== POST_data.currUserNumber))  {
+												console.log('INSIDE with '+JSON.stringify(friends[i].people)+' and requires '+friends[i].requires);
+												if(friends[i].requires === returnArray[j].phoneNumber) {
+													returnArray[j].friendStatus = 'pending';
+												} else {
+													returnArray[j].friendStatus = 'true';
+												}
+												break;
 											} else {
-												returnArray[j].isFriend = false;
+												returnArray[j].friendStatus = 'false';
 											}
 										}
 									} else {
-										returnArray[j].isFriend = false;
+										returnArray[j].friendStatus = 'false';
 									}
 								}
 								response.send({validPeople: returnArray});
