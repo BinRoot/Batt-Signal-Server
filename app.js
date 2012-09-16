@@ -201,15 +201,19 @@ app.post('/getexistingusers', function(request, response) {
 							db.getFriends({'phoneNumber': POST_data.currUserNumber}, function(friends) {
 								console.log('friends is '+JSON.stringify(friends));
 								for(var j = 0; j < returnArray.length; j++) {
-									for(var i = 0; i < friends.length; i++) {
-										console.log('comparing '+friends[i]+' and '+returnArray[j].phoneNumber);
-										if(returnArray[j].isFriend)
-											continue;
-										if(friends[i] === returnArray[j].phoneNumber) {
-											returnArray[j].isFriend = true;
-										} else {
-											returnArray[j].isFriend = false;
+									if(friends.length > 0) {
+										for(var i = 0; i < friends.length; i++) {
+											console.log('comparing '+friends[i]+' and '+returnArray[j].phoneNumber);
+											if(returnArray[j].isFriend)
+												continue;
+											if(friends[i] === returnArray[j].phoneNumber) {
+												returnArray[j].isFriend = true;
+											} else {
+												returnArray[j].isFriend = false;
+											}
 										}
+									} else {
+										returnArray[j].isFriend = false;
 									}
 								}
 								response.send({validPeople: returnArray});
