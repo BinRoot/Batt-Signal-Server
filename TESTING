@@ -34,3 +34,4 @@ http -f POST http://localhost:5000/confirmfriend confirm=true _id=
 http -f POST http://localhost:5000/confirmfriend confirm=false _id=
 
 8. UPDATE STATS
+http -f POST http://localhost:5000/update phoneNumber=222 newBattery=8 newSignal=good

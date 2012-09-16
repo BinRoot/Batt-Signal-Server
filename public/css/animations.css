@@ -1,0 +1,204 @@
+@-webkit-keyframes ten {
+  from {
+    width: 0px;
+    background-color:rgba(255,0,0,0.2);
+  }
+  50% {
+    width: 5px;
+    background-color:rgba(255,0,0,0.5);
+  }
+  to {
+    width: 10px;
+    background-color:rgba(255,0,0,0.9);
+  }
+}
+.battery_ten {
+	width:10px;
+	height:40px;
+	background-color:rgba(255,0,0,0.9);
+	-webkit-animation-name: ten;
+	-webkit-animation-duration: .5s;
+	-webkit-animation-timing-function: linear;
+}
+
+@-webkit-keyframes twentyfive {
+  from {
+    width: 0px;
+    background-color:rgba(255,0,0,0.2);
+  }
+  50% {
+    width: 10px;
+    background-color:rgba(255,0,0,0.5);
+  }
+  to {
+    width: 25px;
+    background-color:rgba(255,0,0,0.9);
+  }
+}
+.battery_twentyfive {
+	width:25px;
+	height:40px;
+	background-color:rgba(255,0,0,0.9);
+	-webkit-animation-name: twentyfive;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-timing-function: linear;
+  margin:0;
+}
+
+@-webkit-keyframes thirtythree {
+  from {
+    width: 0px;
+    background-color:rgba(255,0,0,0.2);
+  }
+  50% {
+    width: 16px;
+    background-color:rgba(255,0,0,0.5);
+  }
+  to {
+    width: 33px;
+    background-color:rgba(255,255,0,0.9);
+  }
+}
+.battery_thirtythree {
+  width:33px;
+  height:40px;
+  background-color:rgba(255,255,0,0.9);
+  -webkit-animation-name: thirtythree;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+  margin:0;
+}
+
+@-webkit-keyframes fifty {
+  from {
+    width: 0px;
+    background-color:rgba(255,0,0,0.2);
+  }
+  50% {
+    width: 25px;
+    background-color:rgba(255,0,0,0.5);
+  }
+  to {
+    width: 50px;
+    background-color:rgba(255,255,0,0.9);
+  }
+}
+.battery_fifty {
+  width:50px;
+  height:40px;
+  background-color:rgba(255,255,0,0.9);
+  -webkit-animation-name: fifty;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+  margin:0;
+}
+
+@-webkit-keyframes sixtysix {
+  from {
+    width: 0px;
+    background-color:rgba(255,0,0,0.2);
+  }
+  50% {
+    width: 33px;
+    background-color:rgba(255,255,0,0.5);
+  }
+  to {
+    width: 66px;
+    background-color:rgba(34,139,34,0.9);
+  }
+}
+.battery_sixtysix {
+  width:66px;
+  height:40px;
+  background-color:rgba(34,139,34,0.9);
+  -webkit-animation-name: sixtysix;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+  margin:0;
+}
+
+@-webkit-keyframes seventyfive {
+  from {
+    width: 0px;
+    background-color:rgba(255,0,0,0.2);
+  }
+  50% {
+    width: 37px;
+    background-color:rgba(255,255,0,0.5);
+  }
+  to {
+    width: 75px;
+    background-color:rgba(34,139,34,0.9);
+  }
+}
+.battery_seventyfive {
+  width:75px;
+  height:40px;
+  background-color:rgba(34,139,34,0.9);
+  -webkit-animation-name: seventyfive;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+  margin:0;
+}
+
+@-webkit-keyframes hundred {
+  from {
+    width: 0px;
+    background-color:rgba(255,0,0,0.2);
+  }
+  50% {
+    width: 37px;
+    background-color:rgba(255,255,0,0.5);
+  }
+  to {
+    width: 100px;
+    background-color:rgba(34,139,34,0.9);
+  }
+}
+.battery_hundred {
+  width:100px;
+  height:40px;
+  background-color:rgba(34,139,34,0.9);
+  -webkit-animation-name: hundred;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+  margin:0;
+}
+
+.battery_wrapper {
+	width:100px;
+	height:40px;
+	border:2px solid black;
+  float:left;
+  width:100px;
+  padding:0;
+  margin:0;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0px 2px 5px 0px #444;
+  box-shadow: 0px 2px 5px 0px #444;
+}
+.battery_nub {
+	width:6px;
+	height:14px;
+	background:black;
+	float:right;
+  padding:0;
+  margin:0;
+  position:relative;
+  top:16px;
+  -webkit-border-top-right-radius: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -moz-border-radius-bottomright: 3px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  -webkit-box-shadow: 0px 2px 5px 0px #444;
+  box-shadow: 0px 2px 5px 0px #444;
+}
+
+.big_wrapper {
+  width:110px;
+  margin-bottom:110px;
+}

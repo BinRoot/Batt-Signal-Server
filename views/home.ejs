@@ -1,22 +1,60 @@
-<div>
-	<ul id="friends_list">
-		<%
-		for(var i = 0; i < friends.length; i++) { %>
-			<li class="friend_button" data-number="<%- friends[i]['phoneNumber'] %>"><%- friends[i].name %></li>
-		<% } %>
-	</ul>
+<div id="friends_list">
+	<% for(var i = 0; i < friends.length; i++) { %> 
+	<div class="friend_button" data-number="<%- friends[i]['phoneNumber'] %>"><%- friends[i].name %></div>
+	<div class="phone_detail" style="display:none;">
+		<div class="phone_detail_battery">
+			<h2 class="phone_stat" id="battery_percent_<%- friends[i]['phoneNumber'] %>"></h2>
+			<p class="subtitle">percent</p>
+			<div class="big_wrapper"><div class="battery_wrapper"><div id="battery_type_<%- friends[i]['phoneNumber'] %>"></div></div><div class="battery_nub"></div></div>
+		</div>
+		<div class="phone_detail_signal">
+			<h2 class="phone_stat" id="signal_strength_<%- friends[i]['phoneNumber'] %>"></h2>
+			<p class="subtitle">signal strength</p>
+		</div>
+		<div class="phone_last_seen">
+			<p>Last seen at <span id="last_seen_<%- friends[i]['phoneNumber'] %>"></p>
+		</div>
+	</div>
+	<% } %>
 </div>
+
+<ul id="menu">
+	<li><a href="#" id="refresh">Refresh data</a></li>
+	<li><a href="/logout" id="logout">Logout</a></li>
+</ul>
 
 <script>
 $(document).ready(function() {
 	$('.friend_button').click(function() {
 		var number = $(this).attr('data-number');
+		var slideMeDown = $(this).next();
 		$.ajax({
 			type: 'POST', 
 			url: '/getstats',
 			data: 'phoneNumbers=['+number+']',
 			success: function(data) {
 				console.log('data is ', data);
+				var stats = data.phoneStats[0];
+				$('#battery_percent_'+number).html(stats.battery);
+				$('#signal_strength_'+number).html(stats.signal);
+				var d = new Date(stats.lastModified);
+				$('#last_seen_'+number).html(d.toDateString()+' '+d.toTimeString());
+				if(stats.battery < 11) {
+					$('#battery_type_'+number).addClass('battery_ten');
+				} else if(stats.battery < 26) {
+					$('#battery_type_'+number).addClass('battery_twentyfive');
+				} else if(stats.battery < 34) {
+					$('#battery_type_'+number).addClass('battery_thirtythree');
+				} else if(stats.battery < 51) {
+					$('#battery_type_'+number).addClass('battery_fifty');
+				} else if(stats.battery < 67) {
+					$('#battery_type_'+number).addClass('battery_sixtysix');
+				} else if(stats.battery < 76) {
+					$('#battery_type_'+number).addClass('battery_seventyfive');
+				} else {
+					$('#battery_type_'+number).addClass('battery_hundred');
+				}
+				slideMeDown.slideDown(600);
 			}
 		});
 	});
