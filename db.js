@@ -66,7 +66,7 @@ Database.prototype.createNewUser = function(data, callback) {
 		// first check to see if this user exists
 		collection.count({phoneNumber: data[0].phoneNumber}, function(err, count) {
 			if(count !== 0) {
-				callback({status: false, msg: 'User already exists', reason: 'duplicate_user'});
+				callback({status: true});
 			} else {
 				// doesn't exist, go ahead and insert
 				collection.insert(data, {safe: true}, function(err, ids) {
