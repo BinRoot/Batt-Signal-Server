@@ -168,9 +168,9 @@ app.post('/getfriends', function(request, response) {
 	}
 });
 
-// receives { phoneNumbers: [array] }
-// figures out which of these numbers are already users in the DB
-// returns { validPeople: [array of {phoneNumber, name}] }. can be 0 length. 
+// receives { phoneNumbers: [array], currUserNumber: [string or undefined] }
+// figures out which of these numbers are already users in the DB. marks whether or not they are currently friends
+// returns { validPeople: [array of {phoneNumber, name, isFriend}] }. can be 0 length. 
 app.post('/getexistingusers', function(request, response) {
 	// build parameters into a string
 	if(request.method === 'POST') {
@@ -195,7 +195,28 @@ app.post('/getexistingusers', function(request, response) {
 						for(var i = 0; i < results.length; i++) {
 							returnArray.push({'phoneNumber': results[i].phoneNumber, 'name': results[i].name});
 						}
-						response.send({validPeople: returnArray});
+
+						// go through returnArray and check to see if each one is already a friend
+						if(POST_data.currUserNumber !== undefined) {
+							db.getFriends({'phoneNumber': POST_data.currUserNumber}, function(friends) {
+								console.log('friends is '+JSON.stringify(friends));
+								for(var j = 0; j < returnArray.length; j++) {
+									for(var i = 0; i < friends.length; i++) {
+										console.log('comparing '+friends[i]+' and '+returnArray[j].phoneNumber);
+										if(returnArray[j].isFriend)
+											continue;
+										if(friends[i] === returnArray[j].phoneNumber) {
+											returnArray[j].isFriend = true;
+										} else {
+											returnArray[j].isFriend = false;
+										}
+									}
+								}
+								response.send({validPeople: returnArray});
+							});
+						} else {
+							response.send({validPeople: returnArray});
+						}
 					});
 				} else {	
 					response.send('{ "status": 500, "message": "Error connecting to the database.", "response": {} }');
@@ -409,22 +430,6 @@ app.post('/getstats', function(request, response) {
 	}
 });
 
-/*
-GOOGLE CLOUD MESSENGER
-*/
-app.get('/gcmtest', function(request, response) {
-	var message = new gcm.Message();
-	var sender = new gcm.Sender('AIzaSyDnvHuy_N5S3ckXHFTCYqkHUoWc110CEm8');
-
-	message.addData('key1', 'test message for key1');
-	message.addData('key2', 'test message for key2');
-	var registrationIds = ['APA91bG7YsoZkNVnKwhmWrNEP0yYXp8jr6bIGgIAF8vfOqyAwsJvxY63qNkv3JgUGQ8v5WY4PwBnzVWU3X9qGtUFhcnr8SEf1Kik51yJIeFCXiUt67R3Dj9DiyvyPX8m2zr7pn4O4LlG'];
-
-	sender.send(message, registrationIds, 4, function (result) {
-	    console.log(result);
-	    response.send(result);
-	});
-});
 
 /*
 FRONT END VIEWS
@@ -510,7 +515,7 @@ app.get('/logout', function(request, response) {
 });
 
 function doHome(request, response, friendsList) {
-	//response.send('friendslist is '+JSON.stringify(friendsList));
+	console.log('friendslist is '+JSON.stringify(friendsList));
 	response.render('home.ejs', {
 		locals: {
 			friends: friendsList
