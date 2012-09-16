@@ -4,6 +4,7 @@ Server = mongo.Server,
 Db = mongo.Db,
 BSON = mongo.BSONPure;
 var gcm = require('node-gcm');
+var crypto = require('crypto');
 
 var server, db;
 
@@ -86,6 +87,7 @@ Database.prototype.createFriendships = function(data, callback) {
 		var numFinished = 0;
 		var goal = data.friends.length;
 		for(var i = 0; i < goal; i++) {
+			// TODO you can currently create a new friendship if it already exists
 			collection.update({'people': [data.originPhone, data.friends[i]], 'requires': data.friends[i]},
 			{'people': [data.originPhone, data.friends[i]], 'requires': data.friends[i]},
 			{'upsert': true}, function(err) {
@@ -126,6 +128,7 @@ Database.prototype.resolveFriendship = function(data, callback) {
 
 // returns a list of friends to the callback function
 // data has a phoneNumber
+// object that's returned holds phone numbers
 Database.prototype.getFriends = function(data, callback) {
 	db.collection('friends', function(err, collection) {
 		collection.find({'people': data.phoneNumber, 'requires': 'none'}).toArray(function(err, results) {
@@ -186,6 +189,18 @@ Database.prototype.triggerRefresh = function(data, callback) {
 			} else {
 				callback(true);
 			}
+		});
+	});
+};
+
+/*
+FRONT-END HEAVY STUFF
+*/
+Database.prototype.verifyLogin = function(data, callback) {
+	db.collection('batt_users', function(err, collection) {
+		var encryptedPass = crypto.createHash('md5').update(data.password).digest('hex');
+		collection.findOne({'phoneNumber': data.phoneNumber, 'password': encryptedPass}, function(err, doc) {
+			callback(doc);
 		});
 	});
 };

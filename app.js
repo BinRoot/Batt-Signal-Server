@@ -431,7 +431,11 @@ FRONT END VIEWS
 */
 
 app.get('/', function(request, response) {
-	response.render('index.ejs', {'layout': false});
+	console.log('cookie is '+request.cookies.loggedin);
+	if(request.cookies.loggedin !== 'true') 
+		response.render('index.ejs', {'layout': false});
+	else
+		response.redirect('/home');
 });
 
 app.get('/login', function(request, response) {
@@ -447,15 +451,72 @@ app.post('/home', function(request, response) {
 		});
 		request.on('end', function() {
 			var POST_data = qs.parse(body);
-
-			response.send('postdata is '+JSON.stringify(POST_data));
+			// connect to DB and get appropriate data
+			db.connect(function(validConnection) {
+				if(validConnection) {
+					db.verifyLogin(POST_data, function(result) {
+						if(result !== null) {
+							response.cookie('loggedin', true);
+							response.cookie('phoneNumber', result.phoneNumber);
+							console.log('just saved phoneNumber '+result.phoneNumber);
+							// get object to pass into doHome
+							db.getFriends({'phoneNumber': result.phoneNumber}, function(friends) {
+								// we have list of friends, now let's actually query for the data
+								db.query('batt_users', {'phoneNumber': {'$in': friends} }, function(friendObjects) {
+									doHome(request, response, friendObjects);
+								});
+							});
+						} else {
+							// no such user exists...
+							response.render('badlogin.ejs');
+						}
+					});
+				} else {	
+					response.send('There was an error connecting to the database!');
+				}
+			});
 		});
 	}
 });
 
 app.get('/home', function(request, response) {
-	response.send('batt fuckin signal');
+	if(request.cookies.loggedin !== 'true') {
+		response.redirect('/');
+		return;
+	}
+
+	// connect to DB and get appropriate data
+	db.connect(function(validConnection) {
+		if(validConnection) {
+			// get object to pass into doHome
+			var myPhoneNumber = request.cookies.phonenumber;
+			db.getFriends({'phoneNumber': myPhoneNumber}, function(friends) {
+				console.log('friends is '+JSON.stringify(friends));
+				// we have list of friends, now let's actually query for the data
+				db.query('batt_users', {'phoneNumber': {'$in': friends} }, function(friendObjects) {
+					doHome(request, response, friendObjects);
+				});
+			});
+		} else {	
+			response.send('THere was an error connecting to the database!');
+		}
+	});
 });
+
+app.get('/logout', function(request, response) {
+	response.clearCookie('loggedin');
+	response.clearCookie('phoneNumber');
+	response.render('logout.ejs');
+});
+
+function doHome(request, response, friendsList) {
+	//response.send('friendslist is '+JSON.stringify(friendsList));
+	response.render('home.ejs', {
+		locals: {
+			friends: friendsList
+		}
+	});
+}
 
 
 var port = process.env.PORT || 5000;
