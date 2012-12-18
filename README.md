@@ -1,1 +1,1 @@
-batt fuckin signal
+batt signal
